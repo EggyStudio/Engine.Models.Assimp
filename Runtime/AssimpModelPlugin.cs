@@ -37,23 +37,12 @@ public sealed class AssimpModelPlugin : IPlugin
         var reader = new AssimpModelReader();
         var loader = new AssimpModelLoader(reader);
 
-        if (!app.World.TryGetResource<SceneReaderRegistry>(out var registry))
-        {
-            registry = new SceneReaderRegistry();
-            app.World.InsertResource(registry);
-            Logger.Warn("AssimpModelPlugin: SceneReaderRegistry was missing - did you forget to add ScenesPlugin? Created one implicitly.");
-        }
+        var registry = app.World.Resource<SceneReaderRegistry>();
         registry.RegisterReader(reader);
 
-        if (app.World.TryGetResource<AssetServer>(out var server))
-        {
-            server.RegisterLoader(loader);
-            Logger.Debug($"AssimpModelPlugin: AssimpModelLoader registered with AssetServer for {loader.Extensions.Length} extensions.");
-        }
-        else
-        {
-            Logger.Warn("AssimpModelPlugin: AssetServer not found - AssimpModelLoader was NOT registered. Add AssetPlugin first.");
-        }
+        var server = app.World.Resource<AssetServer>();
+        server.RegisterLoader(loader);
+        Logger.Debug($"AssimpModelPlugin: AssimpModelLoader registered with AssetServer for {loader.Extensions.Length} extensions.");
 
         Logger.Info("AssimpModelPlugin: Assimp backend ready.");
     }
